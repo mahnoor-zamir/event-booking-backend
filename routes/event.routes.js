@@ -1,24 +1,20 @@
 const express = require('express');
 const eventRouter = express.Router();
 const Event = require('../models/event');
-const authMiddleware = require('../middleware/auth'); 
+const authMiddleware = require('../middleware/auth');
 
-
-
-eventRouter.get("/all", async(req,res) => {
-    try{
-     const allEvent = await Event.find()
-     console.log(allEvent)
-     res.status(200).send(allEvent)
-
+eventRouter.get("/all", async (req, res) => {
+    try {
+        const allEvent = await Event.find();
+        console.log(allEvent);
+        res.status(200).send(allEvent);
+    } catch (err) {
+        console.error(err.message);
     }
-    catch(err){
-        console.error(err.message)
-    }
-})
+});
 
 eventRouter.post('/create', authMiddleware, async (req, res) => {
-    const { title, description, date, venue, price } = req.body;
+    const { title, description, date, venue, price, latitude, longitude } = req.body;
     try {
         const newEvent = new Event({
             title,
@@ -26,7 +22,9 @@ eventRouter.post('/create', authMiddleware, async (req, res) => {
             date,
             venue,
             organizer: req.userId,
-            price
+            price,
+            latitude,
+            longitude
         });
 
         await newEvent.save();
@@ -51,7 +49,7 @@ eventRouter.get('/', authMiddleware, async (req, res) => {
 // Event Update endpoint
 eventRouter.put('/:id', authMiddleware, async (req, res) => {
     const eventId = req.params.id;
-    const { title, description, date, venue } = req.body;
+    const { title, description, date, venue, latitude, longitude } = req.body;
     try {
         const event = await Event.findById(eventId);
 
@@ -67,6 +65,8 @@ eventRouter.put('/:id', authMiddleware, async (req, res) => {
         event.description = description || event.description;
         event.date = date || event.date;
         event.venue = venue || event.venue;
+        event.latitude = latitude || event.latitude;
+        event.longitude = longitude || event.longitude;
 
         await event.save();
 
@@ -76,6 +76,7 @@ eventRouter.put('/:id', authMiddleware, async (req, res) => {
         res.status(500).json({ error: 'Event update failed. Please try again later.' });
     }
 });
+
 eventRouter.delete('/:id', authMiddleware, async (req, res) => {
     const id = req.params.id;
     try {
@@ -89,7 +90,5 @@ eventRouter.delete('/:id', authMiddleware, async (req, res) => {
         res.status(500).json({ error: 'Event deletion failed. Please try again later.' });
     }
 });
-
-
 
 module.exports = eventRouter;
