@@ -24,7 +24,15 @@ const eventSchema = new mongoose.Schema({
   },
   price: {
     type: Number,
-    required:true
+    required: true
+  },
+  latitude: {
+    type: Number,
+    required: true
+  },
+  longitude: {
+    type: Number,
+    required: true
   }
   // Add any other event-related fields here, such as ticket price, maximum capacity, etc.
 });
