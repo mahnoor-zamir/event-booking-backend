@@ -26,7 +26,8 @@ eventRouter.post('/create', authMiddleware, async (req, res) => {
             latitude,
             longitude,
             tag,
-            tickets
+            tickets,
+            ticketAvailable: tickets // Initialize ticketAvailable with the total number of tickets
         });
 
         await newEvent.save();
@@ -37,6 +38,7 @@ eventRouter.post('/create', authMiddleware, async (req, res) => {
     }
 });
 
+module.exports = eventRouter;
 // Event retrieval endpoint
 eventRouter.get('/', authMiddleware, async (req, res) => {
     try {
