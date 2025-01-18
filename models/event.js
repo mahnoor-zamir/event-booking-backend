@@ -41,6 +41,10 @@ const eventSchema = new mongoose.Schema({
   tickets: {
     type: Number,
     required: true
+  },
+  ticketAvailable: {
+    type: Number,
+    required: true
   }
   // Add any other event-related fields here, such as ticket price, maximum capacity, etc.
 });
