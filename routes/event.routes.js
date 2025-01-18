@@ -14,7 +14,7 @@ eventRouter.get("/all", async (req, res) => {
 });
 
 eventRouter.post('/create', authMiddleware, async (req, res) => {
-    const { title, description, date, venue, price, latitude, longitude } = req.body;
+    const { title, description, date, venue, price, latitude, longitude, tag, tickets } = req.body;
     try {
         const newEvent = new Event({
             title,
@@ -24,7 +24,9 @@ eventRouter.post('/create', authMiddleware, async (req, res) => {
             organizer: req.userId,
             price,
             latitude,
-            longitude
+            longitude,
+            tag,
+            tickets
         });
 
         await newEvent.save();
@@ -49,7 +51,7 @@ eventRouter.get('/', authMiddleware, async (req, res) => {
 // Event Update endpoint
 eventRouter.put('/:id', authMiddleware, async (req, res) => {
     const eventId = req.params.id;
-    const { title, description, date, venue, latitude, longitude } = req.body;
+    const { title, description, date, venue, latitude, longitude, tag, tickets } = req.body;
     try {
         const event = await Event.findById(eventId);
 
@@ -67,6 +69,8 @@ eventRouter.put('/:id', authMiddleware, async (req, res) => {
         event.venue = venue || event.venue;
         event.latitude = latitude || event.latitude;
         event.longitude = longitude || event.longitude;
+        event.tag = tag || event.tag;
+        event.tickets = tickets || event.tickets;
 
         await event.save();
 
