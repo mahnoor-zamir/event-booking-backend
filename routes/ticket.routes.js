@@ -14,6 +14,11 @@ ticketRouter.post('/', authMiddleware, async (req, res) => {
             return res.status(404).json({ error: 'Event not found.' });
         }
 
+        // Check if tickets are available
+        if (event.ticketAvailable <= 0) {
+            return res.status(400).json({ error: 'No tickets available.' });
+        }
+
         // Create a new ticket associated with the logged-in user and the event
         const newTicket = new Ticket({
             user: req.userId,
@@ -21,26 +26,17 @@ ticketRouter.post('/', authMiddleware, async (req, res) => {
         });
 
         await newTicket.save();
+
+        // Decrease the available tickets
+        event.ticketAvailable -= 1;
+        await event.save();
+
         res.status(201).json({ message: 'Ticket booked successfully.', ticket: newTicket });
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ error: 'Ticket booking failed. Please try again later.' });
     }
 });
-
-
-ticketRouter.get('/user', authMiddleware, async (req, res) => {
-    try {
-        // Retrieve tickets associated with the logged-in user
-        const userTickets = await Ticket.find({ user: req.userId }).populate('event');
-        res.status(200).json({ userTickets });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ error: 'Ticket retrieval failed. Please try again later.' });
-    }
-});
-
-
 
 ticketRouter.delete('/:ticketId', authMiddleware, async (req, res) => {
     const ticketId = req.params.ticketId;
@@ -51,6 +47,11 @@ ticketRouter.delete('/:ticketId', authMiddleware, async (req, res) => {
         if (!deletedTicket) {
             return res.status(404).json({ error: 'Ticket not found.' });
         }
+
+        // Increase the available tickets
+        const event = await Event.findById(deletedTicket.event);
+        event.ticketAvailable += 1;
+        await event.save();
 
         res.status(200).json({ message: 'Ticket canceled successfully.' });
     } catch (err) {
