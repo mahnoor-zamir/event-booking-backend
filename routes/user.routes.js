@@ -49,16 +49,25 @@ userRouter.post('/login', async (req, res) => {
 });
 
 
-userRouter.get("/:id", async(req,res) => {
-    const userId = req.params.id
-    try{
-      const user = await User.findById(userId)
-      res.status(200).send(uesr)
+userRouter.get("/:id", async (req, res) => {
+    const userId = req.params.id;
+    try {
+        // Find the user by their ID
+        const user = await User.findById(userId);
+
+        // Check if user exists
+        if (!user) {
+            return res.status(404).json({ error: "User not found." });
+        }
+
+        // Respond with selected user details
+        const { username, email } = user; // Destructure only necessary fields
+        res.status(200).json({ username, email });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: "An error occurred while retrieving the user." });
     }
-    catch(err){
-        console.log(err.message)
-    }
-})
+});
 
 
 // User Update endpoint
