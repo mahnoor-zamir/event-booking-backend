@@ -38,6 +38,19 @@ ticketRouter.post('/', authMiddleware, async (req, res) => {
     }
 });
 
+// Retrieve tickets for the logged-in user
+ticketRouter.get('/user', authMiddleware, async (req, res) => {
+    try {
+        // Retrieve tickets associated with the logged-in user
+        const userTickets = await Ticket.find({ user: req.userId }).populate('event');
+        res.status(200).json({ userTickets });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Ticket retrieval failed. Please try again later.' });
+    }
+});
+
+// Cancel a ticket
 ticketRouter.delete('/:ticketId', authMiddleware, async (req, res) => {
     const ticketId = req.params.ticketId;
     try {
